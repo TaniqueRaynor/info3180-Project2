@@ -5,6 +5,8 @@ Werkzeug Documentation:  https://werkzeug.palletsprojects.com/
 This file creates your application.
 """
 
+from crypt import methods
+import json
 from app import app, db, login_manager
 from flask import render_template, request, jsonify, send_file, redirect, flash, session, abort, send_from_directory, url_for
 from flask_login import login_user, logout_user, current_user, login_required
@@ -14,6 +16,7 @@ import os
 from .models import *
 from .forms import *
 from sqlalchemy import or_, and_
+from flask_wtf.csrf import generate_csrf
 
 def get_uploaded_images():
     image_types = ['jpg', 'png', 'jpeg', 'gif', 'svg', 'webp']
@@ -33,7 +36,16 @@ def get_uploaded_images():
 def index():
     return jsonify(message="This is the beginning of our API")
 
-@app.route("/register", methods=["GET", "POST"])
+@app.route('/api/csrf-token', methods=['GET'])
+def get_csrf():
+    return jsonify({'csrf_token': generate_csrf()})
+
+@app.route('/api/uploads/<filename>')
+def get_image(filename):
+    upload_dir =  os.path.join(os.getcwd(), app.config.get('UPLOAD_FOLDER'))
+    return send_from_directory(upload_dir, filename,)
+
+@app.route("/api/register", methods=["GET", "POST"])
 def register():
 
     form = UserForm()
@@ -57,7 +69,15 @@ def register():
             db.session.commit()
             return jsonify({'status': 200})
 
-@app.route("/cars", methods=["GET", "POST"])
+        else:
+            err = {
+                "errors": form_errors(form),
+                'type': 'bad'
+            }
+
+            return jsonify(err)
+
+@app.route("/api/cars", methods=["GET", "POST"])
 def cars():
 
     form = CarForm()
@@ -90,6 +110,13 @@ def cars():
             db.session.add(car)
             db.session.commit()
             return jsonify({'status': 200})
+        else:
+            err = {
+                "errors": form_errors(form),
+                'type': 'bad'
+            }
+
+            return jsonify(err)
 
     carfiles = Cars.query.all()
     
@@ -109,6 +136,7 @@ def favcar(car_id):
         db.session.commit()
         return jsonify({'status': 200})
 
+#-----------------------This should be a GET method-------------------------------->>>
 @app.route("/api/search", methods=["GET", 'POST'])
 def search():
 
@@ -119,13 +147,25 @@ def search():
         #files = db.session.query(Cars).filter(or_(Cars.make == make, Cars.model == model))
         return jsonify(files)
 
+@app.route('/api/users/<user_id>', methods=["GET"])
+def getUser(user_id):
+    user = Users.query.filter_by(id=user_id).first()
+    return jsonify(user)
 
 
-@app.route("/login", methods=["GET", "POST"])
+@app.route('/api/users/<user_id>/favourites', methods=["GET"])
+def getOneUser(user_id):
+    favs = Favourites.query.filter_by(user_id=user_id)
+    return jsonify(favs)
+
+
+
+
+@app.route("/api/auth/login", methods=["GET", "POST"])
 def login():
 
     if current_user.is_authenticated:
-        return redirect(url_for('secure_page'))
+        return jsonify({'status':200})
 
     form = LoginForm()
 
@@ -147,24 +187,25 @@ def login():
             if user != None and check_password_hash(user.password, password):
                 # get user id, load into session
                 login_user(user)
-                flash('Login Successful', 'success')
-                # remember to flash a message to the user
-                return redirect(url_for("secure_page"))  # they should be redirected to a secure-page route instead
+
+                return jsonify({'status':200})
             else:
-                flash('Invalid login credentials', 'danger')
-    return render_template("login.html", form=form)
+                return jsonify({'status':400})
+        else:
+            err = {
+                "errors": form_errors(form),
+                'type': 'bad'
+            }
 
-@app.route('/secure-page')
-@login_required
-def secure_page():
-    return render_template('secure_page.html')
+            return jsonify(err)
 
-@app.route("/logout")
+
+@app.route("/api/auth/logout")
 @login_required
 def logout():
     logout_user()
     flash('Logout Successful', 'success')
-    return redirect(url_for('home'))
+    return jsonify({'status':200})
 
 
 # user_loader callback. This callback is used to reload the user object from
