@@ -154,7 +154,7 @@ def getUser(user_id):
 
 
 @app.route('/api/users/<user_id>/favourites', methods=["GET"])
-def getOneUser(user_id):
+def getFavs(user_id):
     favs = Favourites.query.filter_by(user_id=user_id)
     return jsonify(favs)
 
