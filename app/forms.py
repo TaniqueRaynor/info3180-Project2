@@ -21,11 +21,11 @@ class UserForm(FlaskForm):
 
 class CarForm(FlaskForm):
     description = StringField('Description', validators=[DataRequired()])
-    make= StringField('Description', validators=[DataRequired()])
-    model = StringField('Description', validators=[DataRequired()])
-    colour = StringField('Description', validators=[DataRequired()])
-    year = StringField('Description', validators=[DataRequired()])
-    transmission = StringField('Description', validators=[DataRequired()])
-    car_type = StringField('Description', validators=[DataRequired()])
-    price = StringField('Description', validators=[DataRequired()])
+    make= StringField('Make', validators=[DataRequired()])
+    model = StringField('Model', validators=[DataRequired()])
+    colour = StringField('Colour', validators=[DataRequired()])
+    year = StringField('Year', validators=[DataRequired()])
+    transmission = StringField('Transmission', validators=[DataRequired()])
+    car_type = StringField('Car Type', validators=[DataRequired()])
+    price = StringField('Price', validators=[DataRequired()])
     photo = FileField('File', validators=[FileAllowed(image_types, 'Image only!'), FileRequired('File was empty!')])
