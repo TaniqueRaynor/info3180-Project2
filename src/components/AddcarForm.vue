@@ -111,8 +111,7 @@
           <label for="descr">Desription</label><br><br>
           <textarea id="descr" rows="5" cols="100"></textarea><br>
           <label for="photo">Upload Photo</label><br>
-          <input type="button" id="photo" value="Browse" onclick="document.getElementById('file').click()"/><br>
-          <input type="file" style="display:none;" id="file" name="file"/><br>
+          <input type="file" id="file" name="file"/><br>
           <button type="submit" id="save">Save</button>
     </form>
     </div>

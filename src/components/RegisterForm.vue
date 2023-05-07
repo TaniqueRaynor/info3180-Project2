@@ -20,7 +20,7 @@
             let regForm = document.getElementById('regForm');
             let form_data = new FormData(regForm);
 
-            fetch("/api/cars", {
+            fetch("/api/register", {
                 method: 'POST',
                 body: form_data,
                 headers: {'X-CSRFToken': this.csrf_token}
@@ -91,8 +91,7 @@
           <label for="Bio">Biography</label><br><br>
           <textarea id="bio" rows="5" cols="100"></textarea><br>
           <label for="photo">Upload Photo</label><br>
-          <input type="button" id="photo" value="Browse" onclick="document.getElementById('file').click()"/><br>
-          <input type="file" style="display:none;" id="file" name="file"/><br>
+          <input type="file" id="file" name="file"/><br>
           <button type="submit" id="reg">Register</button>
     </form>
     </div>
